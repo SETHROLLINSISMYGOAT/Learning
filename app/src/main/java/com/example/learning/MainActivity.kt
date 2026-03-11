@@ -1,34 +1,59 @@
 package com.example.learning
 
 import android.content.Intent
-import androidx.recyclerview.widget.RecyclerView
-import android.net.Uri
 import android.os.Bundle
-import android.provider.MediaStore
-import android.webkit.WebView
-import android.widget.EditText
-import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.cardview.widget.CardView
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class MainActivity : AppCompatActivity() {
+    private val noteViewModel: NoteViewModel by viewModels()
+
+    lateinit var recyclerView : RecyclerView
+    lateinit var adapter: NotesAdapter
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContentView(R.layout.activity_main)
 
-        val recyclerView = findViewById<RecyclerView>(R.id.notesRecyclerView)
+        recyclerView = findViewById<RecyclerView>(R.id.notesRecyclerView)
+        val addBtn = findViewById<FloatingActionButton>(R.id.addNoteBtn)
 
-        val notes = listOf(
-            "Learn Kotlin",
-            "Build Android apps",
-            "Practice debugging"
-        )
+        adapter = NotesAdapter(emptyList())
 
         recyclerView.layoutManager = LinearLayoutManager(this)
-        recyclerView.adapter = NotesAdapter(notes)
+        recyclerView.adapter = adapter
+        noteViewModel.notes.observe(this) { notes ->
+            adapter.updateNotes(notes.map{it.text})
+        }
+        noteViewModel.loadNotes()
+
+        addBtn.setOnClickListener {
+
+            val intent = Intent(this, AddNoteActivity::class.java)
+
+            startActivityForResult(intent, 1)
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == 1 && resultCode == RESULT_OK) {
+
+            val newNote = data?.getStringExtra("new_note")
+
+            if (newNote != null) {
+
+                noteViewModel.addNote(newNote)
+
+
+            }
+        }
     }
 }

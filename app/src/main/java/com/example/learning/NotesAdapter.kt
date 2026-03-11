@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-class NotesAdapter(private val notes: List<String>) :
+class NotesAdapter(private var notes: List<String>) :
     RecyclerView.Adapter<NotesAdapter.NoteViewHolder>() {
 
     class NoteViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -26,5 +26,9 @@ class NotesAdapter(private val notes: List<String>) :
 
     override fun getItemCount(): Int {
         return notes.size
+    }
+    fun updateNotes(newNotes: List<String>) {
+        notes = newNotes
+        notifyDataSetChanged()
     }
 }
