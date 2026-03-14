@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 
 class PostAdapter(private var posts: List<Post>) : RecyclerView.Adapter<PostAdapter.PostViewHolder>() {
@@ -28,7 +29,22 @@ class PostAdapter(private var posts: List<Post>) : RecyclerView.Adapter<PostAdap
     override fun getItemCount(): Int = posts.size
 
     fun updatePosts(newPosts: List<Post>) {
+
+        val diffCallback = object : DiffUtil.Callback() {
+
+            override fun getOldListSize(): Int = posts.size
+            override fun getNewListSize(): Int = newPosts.size
+            override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+                return posts[oldItemPosition].id == newPosts[newItemPosition].id
+            }
+            override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+                return posts[oldItemPosition] == newPosts[newItemPosition]
+            }
+        }
+
+        val diffResult = DiffUtil.calculateDiff(diffCallback)
+
         posts = newPosts
-        notifyDataSetChanged()
+        diffResult.dispatchUpdatesTo(this)
     }
 }

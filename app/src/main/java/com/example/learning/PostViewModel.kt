@@ -8,16 +8,13 @@ import android.util.Log
 
 class PostViewModel(private val repository: PostRepository = PostRepository()) : ViewModel() {
 
-    val posts = MutableLiveData<List<Post>>()  // observed by Activity
+    val posts = MutableLiveData<Resource<List<Post>>>()  // observed by Activity
 
     fun fetchPosts() {
         viewModelScope.launch {
-            try {
-                val response = repository.fetchPosts()
-                posts.postValue(response) // LiveData updates RecyclerView
-            } catch (e: Exception) {
-                Log.e("NetworkError", "Failed to fetch posts: ${e.message}")
-            }
+            posts.value = Resource.loading()   // show loading
+            val response = repository.fetchPosts()
+            posts.value = response              // Success or Error
         }
     }
 }
